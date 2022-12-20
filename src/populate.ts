@@ -30,8 +30,12 @@ async function createdata() {
   const ticketType = await createTicketTypeWithHotel();
   const ticket = await createTicket(1, ticketType.id, TicketStatus.PAID);// parametro 1 representa o id do enrollment
   const payment = await createPayment(ticket.id, ticketType.price);
-  const createdHotel = await createHotel();
-  createRooms(createdHotel.id);
+  const createdHotel1 = await createHotel();
+  createRooms(createdHotel1.id);
+  const createdHotel2 = await createHotel();
+  createRooms(createdHotel2.id);
+  const createdHotel3 = await createHotel();
+  createRooms(createdHotel3.id);
 } 
 
 async function createRooms(hotelid: number) {
