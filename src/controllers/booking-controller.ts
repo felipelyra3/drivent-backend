@@ -23,9 +23,6 @@ export async function listBookingByRoomId(req: AuthenticatedRequest, res: Respon
       return res.sendStatus(httpStatus.BAD_REQUEST);
     }
     const booking = await bookingService.getBookingByRoomId(roomId);
-    if(booking.length===0) {
-      return res.sendStatus(httpStatus.NOT_FOUND);
-    }
     return res.status(httpStatus.OK).send(booking);
   } catch (error) {
     return res.sendStatus(httpStatus.NOT_FOUND);
