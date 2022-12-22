@@ -11,6 +11,7 @@ import {
   createPayment,
   generateCreditCardData,
   createTicketTypeWithHotel,
+  createTicketTypeWithoutHotel,
   createTicketTypeRemote,
   createBooking,
   createHotel
@@ -28,6 +29,8 @@ async function createRoom(hotelId: number, roomname: string) {
 
 async function createdata() {
   const ticketType = await createTicketTypeWithHotel();
+  await createTicketTypeWithoutHotel();
+  await createTicketTypeRemote();
   const ticket = await createTicket(1, ticketType.id, TicketStatus.PAID);// parametro 1 representa o id do enrollment
   const payment = await createPayment(ticket.id, ticketType.price);
   const createdHotel = await createHotel();
