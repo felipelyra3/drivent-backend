@@ -27,6 +27,28 @@ async function createRoom(hotelId: number, roomname: string) {
   });
 }
 
+async function createActivityVenue(name: string) {
+  return prisma.activitiesVenue.create({
+    data: {
+      name: name,
+    }
+  });
+}
+
+// async function createActivity(name: string, startsAt: string, endsAt: string, vacancy: number, venue: number) {
+//   return prisma.activities.create({
+//     data: {
+//       name: name,
+//       startsAt: startsAt,
+//       endsAt: endsAt,
+//       vacancy: vacancy,
+//       venue: venue,
+//       date: faker.date.between('2023-01-06T00:00:00.000Z', '2023-01-08T00:00:00.000Z'),
+//     }
+//   })
+  
+// }
+
 async function createdata() {
   const ticketType = await createTicketTypeWithHotel();
   await createTicketTypeWithoutHotel();
@@ -39,6 +61,9 @@ async function createdata() {
   createRooms(createdHotel2.id);
   const createdHotel3 = await createHotel();
   createRooms(createdHotel3.id);
+  createActivityVenue("Auditório Principal");
+  createActivityVenue("Auditório Lateral");
+  createActivityVenue("Sala de Workshop");
 }
 
 async function createRooms(hotelid: number) {
