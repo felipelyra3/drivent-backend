@@ -1,11 +1,9 @@
 import { Router } from "express";
 import { authenticateToken } from "@/middlewares";
-import { getActivities } from "@/controllers/activities-controller";
+import { activitySubscription, getActivities } from "@/controllers/activities-controller";
 
 const activitiesRouter = Router();
 
-activitiesRouter
-  .all("/*", authenticateToken)
-  .get("/", getActivities);
+activitiesRouter.all("/*", authenticateToken).get("/", getActivities).post("/registration", activitySubscription);
 
 export { activitiesRouter };
