@@ -24,10 +24,20 @@ async function create({ activityId, ticketId }: CreateParams): Promise<ActivityS
   });
 }
 
+async function findByTicketAndActivityId(activityId: number, ticketId: number) {
+  return prisma.activitySubscription.findFirst({
+    where: {
+      activityId: activityId,
+      ticketId: ticketId
+    }
+  });
+}
+
 const activitiesRepository = {
   findActivities,
   create,
   findByActivityId,
+  findByTicketAndActivityId
 };
 
 export default activitiesRepository;

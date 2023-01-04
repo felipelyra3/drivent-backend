@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "@/middlewares";
 import httpStatus from "http-status";
 import activitiesService from "@/services/activities-service";
+import ticketService from "@/services/tickets-service";
 
 export async function getActivities(req: AuthenticatedRequest, res: Response) {
   try {
@@ -25,6 +26,30 @@ export async function activitySubscription(req: AuthenticatedRequest, res: Respo
     const subscription = await activitiesService.createSubscription(userId, Number(activityId));
 
     return res.status(httpStatus.OK).send({ subscriptionId: subscription.id });
+  } catch (error) {
+    if (error.name === "CannotSubscribeError") {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
+    return res.sendStatus(httpStatus.NOT_FOUND);
+  }
+}
+
+export async function userHasSubscripted(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { userId } = req;
+    const { activityId } = req.params;
+
+    if (!activityId) {
+      return res.sendStatus(httpStatus.BAD_REQUEST);
+    }
+
+    const ticket = await ticketService.getTicketByUserId(userId);
+    const activitie = await activitiesService.findSubscriptionByTicketAndActivityIds(Number(activityId), ticket.id);
+    if(!activitie) {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    } else {
+      return res.status(httpStatus.OK).send(activitie);
+    }
   } catch (error) {
     if (error.name === "CannotSubscribeError") {
       return res.sendStatus(httpStatus.FORBIDDEN);

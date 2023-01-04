@@ -41,9 +41,15 @@ async function createSubscription(userId: number, activityId: number) {
   return activitiesRepository.create({ activityId, ticketId });
 }
 
+async function findSubscriptionByTicketAndActivityIds(activityId: number, ticketId: number) {
+  const activitie = await activitiesRepository.findByTicketAndActivityId(activityId, ticketId);
+  return activitie;
+}
+
 const activitiesService = {
   listActivities,
   createSubscription,
+  findSubscriptionByTicketAndActivityIds
 };
 
 export default activitiesService;
