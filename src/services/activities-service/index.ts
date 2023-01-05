@@ -19,14 +19,28 @@ async function checkEnrollmentTicket(userId: number) {
 async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
 
-  //TODO: checar horário vago...
+  const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
+
+  const filteredActivities = userActivitiesPerDay.filter((el) => el.ActivitySubscription.length != 0);
 
   if (!activity) {
     throw notFoundError();
   }
-  /* if (ja tiver atividade no horário) {
+
+  const unavailableTime =
+    filteredActivities.filter(
+      (el) =>
+        (activity.startsAt >= el.startsAt && activity.startsAt < el.endsAt) ||
+        (activity.endsAt > el.startsAt && activity.endsAt < el.endsAt),
+    ).length > 0;
+
+  console.log(unavailableTime);
+
+  if (unavailableTime) {
     throw cannotSubscribeError();
-  } */
+  }
+
+  return userActivitiesPerDay;
 }
 
 async function listActivities() {
@@ -36,9 +50,10 @@ async function listActivities() {
 
 async function createSubscription(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
-  await checkValidActivity(activityId, ticketId);
+  const dayActivities = await checkValidActivity(activityId, ticketId);
 
-  return activitiesRepository.create({ activityId, ticketId });
+  //return activitiesRepository.create({ activityId, ticketId });
+  return dayActivities;
 }
 
 const activitiesService = {

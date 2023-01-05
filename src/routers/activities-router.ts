@@ -4,6 +4,6 @@ import { activitySubscription, getActivities } from "@/controllers/activities-co
 
 const activitiesRouter = Router();
 
-activitiesRouter.all("/*", authenticateToken).get("/", getActivities).post("/registration", activitySubscription);
+activitiesRouter.all("/*", authenticateToken).get("/", getActivities).post("/subscription", activitySubscription);
 
 export { activitiesRouter };
