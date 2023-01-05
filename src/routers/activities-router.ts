@@ -10,11 +10,11 @@ import {
 const activitiesRouter = Router();
 
 activitiesRouter
+  
   .all("/*", authenticateToken)
-  .get("/", getActivities)
+  .get("/", getDays)
   .get("/:activityId", userHasSubscripted)
   .post("/subscription", activitySubscription)
-  .get("/days", getDays)
   .get("/days/:date", getActivitiesByDay);
 
 export { activitiesRouter };

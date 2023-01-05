@@ -2,6 +2,7 @@ import activitiesRepository from "@/repositories/activities-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import { cannotListActivitiesError, cannotSubscribeError, notFoundError } from "@/errors";
 import tikectRepository from "@/repositories/ticket-repository";
+import dayjs from "dayjs";
 
 async function checkEnrollmentTicket(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
