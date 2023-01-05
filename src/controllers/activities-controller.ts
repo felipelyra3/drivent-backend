@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from "@/middlewares";
 import httpStatus from "http-status";
 import activitiesService from "@/services/activities-service";
 import ticketService from "@/services/tickets-service";
+import dayjs from "dayjs";
 
 export async function getActivities(req: AuthenticatedRequest, res: Response) {
   try {
@@ -45,7 +46,7 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
 
     const ticket = await ticketService.getTicketByUserId(userId);
     const activitie = await activitiesService.findSubscriptionByTicketAndActivityIds(Number(activityId), ticket.id);
-    if(!activitie) {
+    if (!activitie) {
       return res.sendStatus(httpStatus.NOT_FOUND);
     } else {
       return res.status(httpStatus.OK).send(activitie);
@@ -61,14 +62,15 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
 export async function getDays(req: AuthenticatedRequest, res: Response) {
   try {
     const days = await activitiesService.getDays();
-    return res.status(httpStatus.OK).send(days);
+    const ActivitiesDay = days.map(item => item.date);
+    return res.status(httpStatus.OK).send(ActivitiesDay);
   } catch (error) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
 
 export async function getActivitiesByDay(req: AuthenticatedRequest, res: Response) {
-  const { date } = req.params as {date: string};
+  const { date } = req.params as { date: string };
   const newDate = new Date(date);
 
   try {
