@@ -7,3 +7,4 @@ export * from "./unauthorized-error";
 export * from "./request-error";
 export * from "./cannot-booking-error";
 export * from "./cannot-subscribe-error";
+export * from "./cannot-list-activities-error";
