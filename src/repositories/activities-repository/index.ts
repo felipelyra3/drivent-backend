@@ -14,6 +14,49 @@ async function findByActivityId(activityId: number) {
     },
   });
 }
+
+async function create({ activityId, ticketId }: CreateParams): Promise<ActivitySubscription> {
+  return prisma.activitySubscription.create({
+    data: {
+      activityId,
+      ticketId,
+    },
+  });
+}
+
+async function findByTicketAndActivityId(activityId: number, ticketId: number) {
+  return prisma.activitySubscription.findFirst({
+    where: {
+      activityId: activityId,
+      ticketId: ticketId,
+    },
+  });
+}
+
+async function findDays() {
+  return prisma.activities.groupBy({
+    by: ["date"],
+    orderBy: {
+      date: "asc",
+    },
+  });
+}
+
+async function findActivitiesByDay(date: Date) {
+  return prisma.activitiesVenue.findMany({
+    include: {
+      Activities: {
+        where: {
+          date,
+        },
+        orderBy: {
+          startsAt: "asc",
+        },
+      },
+    },
+  });
+}
+
 async function findByActivityDateAndTicket(date: Date, ticketId: number) {
   return prisma.activities.findMany({
     where: {
@@ -29,19 +72,13 @@ async function findByActivityDateAndTicket(date: Date, ticketId: number) {
   });
 }
 
-async function create({ activityId, ticketId }: CreateParams): Promise<ActivitySubscription> {
-  return prisma.activitySubscription.create({
-    data: {
-      activityId,
-      ticketId,
-    },
-  });
-}
-
 const activitiesRepository = {
   findActivities,
   create,
   findByActivityId,
+  findByTicketAndActivityId,
+  findDays,
+  findActivitiesByDay,
   findByActivityDateAndTicket,
 };
 

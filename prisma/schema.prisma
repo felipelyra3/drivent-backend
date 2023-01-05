@@ -135,13 +135,15 @@ model Booking {
 model Activities {
   id                   Int                    @id @default(autoincrement())
   name                 String
-  date                 String
+  date                 DateTime
   startsAt             String
   endsAt               String
   vacancy              Int
   venue                Int?
   ActivitiesVenue      ActivitiesVenue?       @relation(fields: [venue], references: [id], onDelete: NoAction, onUpdate: NoAction)
   ActivitySubscription ActivitySubscription[]
+
+  @@index([date])
 }
 
 model ActivitiesVenue {

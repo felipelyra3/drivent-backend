@@ -1,9 +1,20 @@
 import { Router } from "express";
 import { authenticateToken } from "@/middlewares";
-import { activitySubscription, getActivities } from "@/controllers/activities-controller";
-
+import {
+  activitySubscription,
+  getActivities,
+  userHasSubscripted,
+  getActivitiesByDay,
+  getDays,
+} from "@/controllers/activities-controller";
 const activitiesRouter = Router();
 
-activitiesRouter.all("/*", authenticateToken).get("/", getActivities).post("/subscription", activitySubscription);
+activitiesRouter
+  .all("/*", authenticateToken)
+  .get("/", getActivities)
+  .get("/:activityId", userHasSubscripted)
+  .post("/subscription", activitySubscription)
+  .get("/days", getDays)
+  .get("/days/:date", getActivitiesByDay);
 
 export { activitiesRouter };
