@@ -24,10 +24,36 @@ async function create({ activityId, ticketId }: CreateParams): Promise<ActivityS
   });
 }
 
+async function findDays() {
+  return prisma.activities.groupBy({
+    by: ["date"],
+    orderBy: {
+      date: "asc",
+    },
+  });
+}
+
+async function findActivitiesByDay(date: Date) {
+  return prisma.activitiesVenue.findMany({
+    include: {
+      Activities: {
+        where: {
+          date,
+        },
+        orderBy: {
+          startsAt: "asc",
+        },
+      }
+    }
+  });
+}
+
 const activitiesRepository = {
   findActivities,
   create,
   findByActivityId,
+  findDays,
+  findActivitiesByDay
 };
 
 export default activitiesRepository;

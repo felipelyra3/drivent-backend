@@ -35,19 +35,18 @@ async function createActivityVenue(name: string) {
   });
 }
 
-// async function createActivity(name: string, startsAt: string, endsAt: string, vacancy: number, venue: number) {
-//   return prisma.activities.create({
-//     data: {
-//       name: name,
-//       startsAt: startsAt,
-//       endsAt: endsAt,
-//       vacancy: vacancy,
-//       venue: venue,
-//       date: faker.date.between('2023-01-06T00:00:00.000Z', '2023-01-08T00:00:00.000Z'),
-//     }
-//   })
-  
-// }
+async function createActivity(name: string, startsAt: string, endsAt: string, vacancy: number, venue: number) {
+  return prisma.activities.create({
+    data: {
+      name: name,
+      startsAt: startsAt,
+      endsAt: endsAt,
+      vacancy: vacancy,
+      venue: venue,
+      date: faker.date.between("2023-01-06T00:00:00.000Z", "2023-01-08T00:00:00.000Z"),
+    }
+  });
+}
 
 async function createdata() {
   const ticketType = await createTicketTypeWithHotel();
