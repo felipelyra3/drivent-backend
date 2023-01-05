@@ -1,8 +1,7 @@
 import activitiesRepository from "@/repositories/activities-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
-import { /* cannotListActivitiesError, */ cannotSubscribeError, notFoundError } from "@/errors";
+import { cannotListActivitiesError, cannotSubscribeError, notFoundError } from "@/errors";
 import tikectRepository from "@/repositories/ticket-repository";
-import dayjs from "dayjs";
 
 async function checkEnrollmentTicket(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -35,13 +34,9 @@ async function checkValidActivity(activityId: number, ticketId: number) {
         (activity.endsAt > el.startsAt && activity.endsAt < el.endsAt),
     ).length > 0;
 
-  console.log(unavailableTime);
-
   if (unavailableTime) {
     throw cannotSubscribeError();
   }
-
-  return userActivitiesPerDay;
 }
 
 async function listActivities() {
@@ -51,10 +46,8 @@ async function listActivities() {
 
 async function createSubscription(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
-  const dayActivities = await checkValidActivity(activityId, ticketId);
-
-  //return activitiesRepository.create({ activityId, ticketId });
-  return dayActivities;
+  await checkValidActivity(activityId, ticketId);
+  return activitiesRepository.create({ activityId, ticketId });
 }
 
 async function findSubscriptionByTicketAndActivityIds(activityId: number, ticketId: number) {

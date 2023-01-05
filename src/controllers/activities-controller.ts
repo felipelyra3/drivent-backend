@@ -25,7 +25,7 @@ export async function activitySubscription(req: AuthenticatedRequest, res: Respo
 
     const subscription = await activitiesService.createSubscription(userId, Number(activityId));
 
-    return res.status(httpStatus.OK).send(subscription /* { subscriptionId: subscription.id } */);
+    return res.status(httpStatus.OK).send({ subscriptionId: subscription.id });
   } catch (error) {
     if (error.name === "CannotSubscribeError") {
       return res.sendStatus(httpStatus.FORBIDDEN);
