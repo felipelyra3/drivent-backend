@@ -1,6 +1,6 @@
 import activitiesRepository from "@/repositories/activities-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
-import { cannotListActivitiesError, cannotSubscribeError, notFoundError } from "@/errors";
+import { cannotSubscribeError, notFoundError } from "@/errors";
 import tikectRepository from "@/repositories/ticket-repository";
 
 async function checkEnrollmentTicket(userId: number) {
@@ -12,7 +12,6 @@ async function checkEnrollmentTicket(userId: number) {
   if (!ticket || ticket.status === "RESERVED" || ticket.TicketType.isRemote) {
     throw cannotSubscribeError();
   }
-
   return ticket.id;
 }
 
@@ -68,12 +67,23 @@ async function getActivitiesByDay(date: Date) {
   return activities;
 }
 
+async function deleteActivityById(userId: number, activityId: number) {
+  const ticketId = await checkEnrollmentTicket(userId);
+  const isUserActivity = await activitiesRepository.findByTicketAndActivityId(activityId, ticketId);
+  if (!isUserActivity) {
+    throw cannotSubscribeError();
+  }
+
+  return activitiesRepository.deleteSubscription(isUserActivity.id);
+}
+
 const activitiesService = {
   listActivities,
   createSubscription,
   findSubscriptionByTicketAndActivityIds,
   getDays,
   getActivitiesByDay,
+  deleteActivityById,
 };
 
 export default activitiesService;

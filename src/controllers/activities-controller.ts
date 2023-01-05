@@ -82,3 +82,24 @@ export async function getActivitiesByDay(req: AuthenticatedRequest, res: Respons
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
+
+export async function unsubscribeActivity(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { userId } = req;
+
+    const activityId = Number(req.params.activityId);
+
+    if (!activityId) {
+      return res.sendStatus(httpStatus.BAD_REQUEST);
+    }
+
+    await activitiesService.deleteActivityById(userId, Number(activityId));
+
+    return res.sendStatus(httpStatus.ACCEPTED);
+  } catch (error) {
+    if (error.name === "CannotSubscribeError") {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
+    return res.sendStatus(httpStatus.NOT_FOUND);
+  }
+}

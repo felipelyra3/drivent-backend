@@ -1,5 +1,6 @@
 import { prisma } from "@/config";
 import { ActivitySubscription } from "@prisma/client";
+import { number } from "joi";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
@@ -72,6 +73,14 @@ async function findByActivityDateAndTicket(date: Date, ticketId: number) {
   });
 }
 
+async function deleteSubscription(id: number) {
+  return prisma.activitySubscription.delete({
+    where: {
+      id,
+    },
+  });
+}
+
 const activitiesRepository = {
   findActivities,
   create,
@@ -80,6 +89,7 @@ const activitiesRepository = {
   findDays,
   findActivitiesByDay,
   findByActivityDateAndTicket,
+  deleteSubscription,
 };
 
 export default activitiesRepository;
