@@ -2,7 +2,6 @@ import activitiesRepository from "@/repositories/activities-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import { cannotListActivitiesError, cannotSubscribeError, notFoundError } from "@/errors";
 import tikectRepository from "@/repositories/ticket-repository";
-import dayjs from "dayjs";
 
 async function checkEnrollmentTicket(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -20,14 +19,24 @@ async function checkEnrollmentTicket(userId: number) {
 async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
 
-  //TODO: checar horário vago...
+  const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
+
+  const filteredActivities = userActivitiesPerDay.filter((el) => el.ActivitySubscription.length != 0);
 
   if (!activity) {
     throw notFoundError();
   }
-  /* if (ja tiver atividade no horário) {
+
+  const unavailableTime =
+    filteredActivities.filter(
+      (el) =>
+        (activity.startsAt >= el.startsAt && activity.startsAt < el.endsAt) ||
+        (activity.endsAt > el.startsAt && activity.endsAt < el.endsAt),
+    ).length > 0;
+
+  if (unavailableTime) {
     throw cannotSubscribeError();
-  } */
+  }
 }
 
 async function listActivities() {
@@ -38,7 +47,6 @@ async function listActivities() {
 async function createSubscription(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
   await checkValidActivity(activityId, ticketId);
-
   return activitiesRepository.create({ activityId, ticketId });
 }
 
@@ -54,7 +62,7 @@ async function getDays() {
 
 async function getActivitiesByDay(date: Date) {
   const activities = await activitiesRepository.findActivitiesByDay(date);
-  if(!activities) {
+  if (!activities) {
     throw notFoundError();
   }
   return activities;
@@ -65,7 +73,7 @@ const activitiesService = {
   createSubscription,
   findSubscriptionByTicketAndActivityIds,
   getDays,
-  getActivitiesByDay
+  getActivitiesByDay,
 };
 
 export default activitiesService;

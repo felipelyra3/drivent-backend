@@ -28,8 +28,8 @@ async function findByTicketAndActivityId(activityId: number, ticketId: number) {
   return prisma.activitySubscription.findFirst({
     where: {
       activityId: activityId,
-      ticketId: ticketId
-    }
+      ticketId: ticketId,
+    },
   });
 }
 
@@ -52,8 +52,23 @@ async function findActivitiesByDay(date: Date) {
         orderBy: {
           startsAt: "asc",
         },
-      }
-    }
+      },
+    },
+  });
+}
+
+async function findByActivityDateAndTicket(date: Date, ticketId: number) {
+  return prisma.activities.findMany({
+    where: {
+      date,
+    },
+    include: {
+      ActivitySubscription: {
+        where: {
+          ticketId,
+        },
+      },
+    },
   });
 }
 
@@ -63,7 +78,8 @@ const activitiesRepository = {
   findByActivityId,
   findByTicketAndActivityId,
   findDays,
-  findActivitiesByDay
+  findActivitiesByDay,
+  findByActivityDateAndTicket,
 };
 
 export default activitiesRepository;
