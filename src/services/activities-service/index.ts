@@ -1,6 +1,6 @@
 import activitiesRepository from "@/repositories/activities-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
-import { cannotSubscribeError, notFoundError } from "@/errors";
+import { cannotListActivitiesError, cannotSubscribeError, notFoundError } from "@/errors";
 import tikectRepository from "@/repositories/ticket-repository";
 
 async function checkEnrollmentTicket(userId: number) {
@@ -19,14 +19,24 @@ async function checkEnrollmentTicket(userId: number) {
 async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
 
-  //TODO: checar horário vago...
+  const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
+
+  const filteredActivities = userActivitiesPerDay.filter((el) => el.ActivitySubscription.length != 0);
 
   if (!activity) {
     throw notFoundError();
   }
-  /* if (ja tiver atividade no horário) {
+
+  const unavailableTime =
+    filteredActivities.filter(
+      (el) =>
+        (activity.startsAt >= el.startsAt && activity.startsAt < el.endsAt) ||
+        (activity.endsAt > el.startsAt && activity.endsAt < el.endsAt),
+    ).length > 0;
+
+  if (unavailableTime) {
     throw cannotSubscribeError();
-  } */
+  }
 }
 
 async function listActivities() {
@@ -37,7 +47,6 @@ async function listActivities() {
 async function createSubscription(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
   await checkValidActivity(activityId, ticketId);
-
   return activitiesRepository.create({ activityId, ticketId });
 }
 
@@ -46,10 +55,25 @@ async function findSubscriptionByTicketAndActivityIds(activityId: number, ticket
   return activitie;
 }
 
+async function getDays() {
+  const days = await activitiesRepository.findDays();
+  return days;
+}
+
+async function getActivitiesByDay(date: Date) {
+  const activities = await activitiesRepository.findActivitiesByDay(date);
+  if (!activities) {
+    throw notFoundError();
+  }
+  return activities;
+}
+
 const activitiesService = {
   listActivities,
   createSubscription,
-  findSubscriptionByTicketAndActivityIds
+  findSubscriptionByTicketAndActivityIds,
+  getDays,
+  getActivitiesByDay,
 };
 
 export default activitiesService;
