@@ -42,6 +42,11 @@ async function createSubscription(userId: number, activityId: number) {
   return activitiesRepository.create({ activityId, ticketId });
 }
 
+async function findSubscriptionByTicketAndActivityIds(activityId: number, ticketId: number) {
+  const activitie = await activitiesRepository.findByTicketAndActivityId(activityId, ticketId);
+  return activitie;
+}
+
 async function getDays() {
   const days = await activitiesRepository.findDays();
   return days;
@@ -58,6 +63,7 @@ async function getActivitiesByDay(date: Date) {
 const activitiesService = {
   listActivities,
   createSubscription,
+  findSubscriptionByTicketAndActivityIds,
   getDays,
   getActivitiesByDay
 };

@@ -24,6 +24,15 @@ async function create({ activityId, ticketId }: CreateParams): Promise<ActivityS
   });
 }
 
+async function findByTicketAndActivityId(activityId: number, ticketId: number) {
+  return prisma.activitySubscription.findFirst({
+    where: {
+      activityId: activityId,
+      ticketId: ticketId
+    }
+  });
+}
+
 async function findDays() {
   return prisma.activities.groupBy({
     by: ["date"],
@@ -52,6 +61,7 @@ const activitiesRepository = {
   findActivities,
   create,
   findByActivityId,
+  findByTicketAndActivityId,
   findDays,
   findActivitiesByDay
 };
