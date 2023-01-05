@@ -61,6 +61,7 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
 export async function getDays(req: AuthenticatedRequest, res: Response) {
   try {
     const days = await activitiesService.getDays();
+    console.log(days);
     return res.status(httpStatus.OK).send(days);
   } catch (error) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
