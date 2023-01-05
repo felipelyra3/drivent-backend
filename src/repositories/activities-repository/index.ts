@@ -1,6 +1,5 @@
 import { prisma } from "@/config";
 import { ActivitySubscription } from "@prisma/client";
-import { number } from "joi";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
