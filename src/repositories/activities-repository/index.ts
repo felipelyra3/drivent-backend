@@ -72,6 +72,14 @@ async function findByActivityDateAndTicket(date: Date, ticketId: number) {
   });
 }
 
+async function deleteSubscription(id: number) {
+  return prisma.activitySubscription.delete({
+    where: {
+      id,
+    },
+  });
+}
+
 const activitiesRepository = {
   findActivities,
   create,
@@ -80,6 +88,7 @@ const activitiesRepository = {
   findDays,
   findActivitiesByDay,
   findByActivityDateAndTicket,
+  deleteSubscription,
 };
 
 export default activitiesRepository;
