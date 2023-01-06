@@ -3,7 +3,6 @@ import { AuthenticatedRequest } from "@/middlewares";
 import httpStatus from "http-status";
 import activitiesService from "@/services/activities-service";
 import ticketService from "@/services/tickets-service";
-import dayjs from "dayjs";
 
 export async function getActivities(req: AuthenticatedRequest, res: Response) {
   try {
@@ -62,7 +61,7 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
 export async function getDays(req: AuthenticatedRequest, res: Response) {
   try {
     const days = await activitiesService.getDays();
-    const ActivitiesDay = days.map(item => item.date);
+    const ActivitiesDay = days.map((item) => item.date);
     return res.status(httpStatus.OK).send(ActivitiesDay);
   } catch (error) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
@@ -81,5 +80,26 @@ export async function getActivitiesByDay(req: AuthenticatedRequest, res: Respons
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
     return res.sendStatus(httpStatus.BAD_REQUEST);
+  }
+}
+
+export async function unsubscribeActivity(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { userId } = req;
+
+    const activityId = Number(req.params.activityId);
+
+    if (!activityId) {
+      return res.sendStatus(httpStatus.BAD_REQUEST);
+    }
+
+    await activitiesService.deleteActivityById(userId, Number(activityId));
+
+    return res.sendStatus(httpStatus.ACCEPTED);
+  } catch (error) {
+    if (error.name === "CannotSubscribeError") {
+      return res.sendStatus(httpStatus.FORBIDDEN);
+    }
+    return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
