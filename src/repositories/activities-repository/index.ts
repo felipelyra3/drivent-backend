@@ -111,17 +111,6 @@ async function deleteSubscription(SubscriptionId: number, vacancy: number, activ
   ]);
 }
 
-async function updateVacancy(vacancy: number, id: number) {
-  return prisma.activities.update({
-    where: {
-      id,
-    },
-    data: {
-      vacancy,
-    },
-  });
-}
-
 const activitiesRepository = {
   findActivities,
   create,
@@ -131,7 +120,6 @@ const activitiesRepository = {
   findActivitiesByDay,
   findByActivityDateAndTicket,
   deleteSubscription,
-  updateVacancy,
 };
 
 export default activitiesRepository;
