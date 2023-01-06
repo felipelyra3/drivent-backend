@@ -23,7 +23,7 @@ export async function activitySubscription(req: AuthenticatedRequest, res: Respo
       return res.sendStatus(httpStatus.BAD_REQUEST);
     }
 
-    const subscription = await activitiesService.createSubscription(userId, Number(activityId));
+    const [subscription, activity] = await activitiesService.createSubscription(userId, Number(activityId));
 
     return res.status(httpStatus.OK).send({ subscriptionId: subscription.id });
   } catch (error) {
@@ -93,7 +93,6 @@ export async function unsubscribeActivity(req: AuthenticatedRequest, res: Respon
     }
 
     await activitiesService.deleteActivityById(userId, Number(activityId));
-
     return res.sendStatus(httpStatus.ACCEPTED);
   } catch (error) {
     if (error.name === "CannotSubscribeError") {
