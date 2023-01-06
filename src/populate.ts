@@ -49,7 +49,7 @@ async function createActivity(name: string, startsAt: string, endsAt: string, va
 }
 
 async function createdata() {
-  const ticketType = await createTicketTypeWithHotel();
+  /*const ticketType = await createTicketTypeWithHotel();
   await createTicketTypeWithoutHotel();
   await createTicketTypeRemote();
   const ticket = await createTicket(1, ticketType.id, TicketStatus.PAID); // parametro 1 representa o id do enrollment
@@ -62,9 +62,9 @@ async function createdata() {
   createRooms(createdHotel3.id);
   createActivityVenue("Auditório Principal");
   createActivityVenue("Auditório Lateral");
-  createActivityVenue("Sala de Workshop");
+  createActivityVenue("Sala de Workshop");*/
   createActivity("Minecraft: montando o PC ideal", "09:00", "10:00", 27, 1); // copiar esta função e mudar os parametros para criar novas atividades;
-  createActivity("LOL: montando o PC ideal", "10:00", "11:00", 0, 1);
+  createActivity("LOL: montando o PC ideal", "10:00", "16:00", 0, 1);
   createActivity("Palestra x", "09:00", "11:00", 27, 2);
   createActivity("Palestra y", "09:00", "10:00", 27, 3);
   createActivity("Palestra z", "10:00", "11:00", 0, 3);
