@@ -63,7 +63,11 @@ async function createdata() {
   createActivityVenue("Auditório Principal");
   createActivityVenue("Auditório Lateral");
   createActivityVenue("Sala de Workshop");
-  createActivity("Palestra 1", "9:00", "10:00", 20, 1); // copiar esta função e mudar os parametros para criar novas atividades;
+  createActivity("Minecraft: montando o PC ideal", "09:00", "10:00", 27, 1); // copiar esta função e mudar os parametros para criar novas atividades;
+  createActivity("LOL: montando o PC ideal", "10:00", "16:00", 0, 1);
+  createActivity("Palestra x", "09:00", "11:00", 27, 2);
+  createActivity("Palestra y", "09:00", "10:00", 27, 3);
+  createActivity("Palestra z", "10:00", "11:00", 0, 3);
 }
 
 async function createRooms(hotelid: number) {
