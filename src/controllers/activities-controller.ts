@@ -42,7 +42,6 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
     if (!activityId) {
       return res.sendStatus(httpStatus.BAD_REQUEST);
     }
-
     const ticket = await ticketService.getTicketByUserId(userId);
     const activitie = await activitiesService.findSubscriptionByTicketAndActivityIds(Number(activityId), ticket.id);
     if (!activitie) {
