@@ -43,15 +43,23 @@ async function findDays() {
 }
 
 async function findActivitiesByDay(date: Date) {
+  const plus1day = new Date(date.setDate(date.getDate() + 1));
+  const today = new Date(date.setDate(date.getDate() - 1));
   return prisma.activitiesVenue.findMany({
     include: {
       Activities: {
         where: {
-          date,
+          date: {
+            gte: today,
+            lt: plus1day
+          }
         },
         orderBy: {
           startsAt: "asc",
         },
+        include: {
+          ActivitySubscription: true
+        }
       },
     },
   });
