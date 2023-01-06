@@ -1,5 +1,5 @@
 import { prisma } from "@/config";
-import { ActivitySubscription } from "@prisma/client";
+import { Activities, ActivitySubscription } from "@prisma/client";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
@@ -15,13 +15,26 @@ async function findByActivityId(activityId: number) {
   });
 }
 
-async function create({ activityId, ticketId }: CreateParams): Promise<ActivitySubscription> {
-  return prisma.activitySubscription.create({
-    data: {
-      activityId,
-      ticketId,
-    },
-  });
+async function create(
+  { activityId, ticketId }: CreateParams,
+  vacancy: number,
+): Promise<[ActivitySubscription, Activities]> {
+  return prisma.$transaction([
+    prisma.activitySubscription.create({
+      data: {
+        activityId,
+        ticketId,
+      },
+    }),
+    prisma.activities.update({
+      where: {
+        id: activityId,
+      },
+      data: {
+        vacancy: vacancy - 1,
+      },
+    }),
+  ]);
 }
 
 async function findByTicketAndActivityId(activityId: number, ticketId: number) {
@@ -51,15 +64,15 @@ async function findActivitiesByDay(date: Date) {
         where: {
           date: {
             gte: today,
-            lt: plus1day
-          }
+            lt: plus1day,
+          },
         },
         orderBy: {
           startsAt: "asc",
         },
         include: {
-          ActivitySubscription: true
-        }
+          ActivitySubscription: true,
+        },
       },
     },
   });
@@ -80,10 +93,31 @@ async function findByActivityDateAndTicket(date: Date, ticketId: number) {
   });
 }
 
-async function deleteSubscription(id: number) {
-  return prisma.activitySubscription.delete({
+async function deleteSubscription(SubscriptionId: number, vacancy: number, activityId: number) {
+  prisma.$transaction([
+    prisma.activitySubscription.delete({
+      where: {
+        id: SubscriptionId,
+      },
+    }),
+    prisma.activities.update({
+      where: {
+        id: activityId,
+      },
+      data: {
+        vacancy: vacancy + 1,
+      },
+    }),
+  ]);
+}
+
+async function updateVacancy(vacancy: number, id: number) {
+  return prisma.activities.update({
     where: {
       id,
+    },
+    data: {
+      vacancy,
     },
   });
 }
@@ -97,6 +131,7 @@ const activitiesRepository = {
   findActivitiesByDay,
   findByActivityDateAndTicket,
   deleteSubscription,
+  updateVacancy,
 };
 
 export default activitiesRepository;
