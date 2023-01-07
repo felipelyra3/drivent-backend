@@ -19,15 +19,11 @@ async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
 
   const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
-
-  const filteredActivities = userActivitiesPerDay.filter((el) => el.ActivitySubscription.length != 0);
-
   if (!activity) {
     throw notFoundError();
   }
-
   const unavailableTime =
-    filteredActivities.filter(
+    userActivitiesPerDay.filter(
       (el) =>
         (activity.startsAt >= el.startsAt && activity.startsAt < el.endsAt) ||
         (activity.endsAt > el.startsAt && activity.endsAt < el.endsAt),
