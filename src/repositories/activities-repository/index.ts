@@ -1,5 +1,5 @@
 import { prisma } from "@/config";
-import { Activities, ActivitySubscription } from "@prisma/client";
+import { Activities, ActivitySubscription, PrismaPromise } from "@prisma/client";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
@@ -78,19 +78,10 @@ async function findActivitiesByDay(date: Date) {
   });
 }
 
-async function findByActivityDateAndTicket(date: Date, ticketId: number) {
-  return prisma.activities.findMany({
-    where: {
-      date,
-    },
-    include: {
-      ActivitySubscription: {
-        where: {
-          ticketId,
-        },
-      },
-    },
-  });
+async function findByActivityDateAndTicket(date: Date, ticketId: number): Promise<{ startsAt: string; endsAt: string}[]> {
+  const datetext = date.toISOString().slice(0, 10)+"%";
+  return prisma.$queryRaw`SELECT "Activities"."startsAt", "Activities"."endsAt" FROM "ActivitySubscription" JOIN "Activities" ON "ActivitySubscription"."activityId" = "Activities"."id"
+  WHERE "Activities".date::text LIKE ${datetext} AND "ActivitySubscription"."ticketId"=${ticketId}`;
 }
 
 async function deleteSubscription(SubscriptionId: number, vacancy: number, activityId: number) {
