@@ -19,8 +19,8 @@ async function exchangeCodeForAccessToken(code: string) {
 
   const { data } = await axios.post(GITHUB_ACCESS_TOKEN_URL, body, {
     headers: {
-      "Content-Type": "application/json"
-    }
+      "Content-Type": "application/json",
+    },
   });
   const parsedData = data.slice(13, 53);
   return parsedData;
@@ -29,10 +29,9 @@ async function exchangeCodeForAccessToken(code: string) {
 async function fetchUser(token: string) {
   const response = await axios.get("https://api.github.com/user", {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
-
   return response.data;
 }
 
@@ -45,13 +44,12 @@ export async function singInGitHubPost(req: Request, res: Response) {
       password: "",
     } as Prisma.UserUncheckedCreateInput;
     const email = `${user.login}@github`;
-    const password = "";
 
     const checkIfEmailExists = await findUserByEmail(email);
-    if(!checkIfEmailExists) {
+    if (!checkIfEmailExists) {
       await createGitHubUser(loginInfo);
     }
-    
+
     const tokenDrivent = await createSession(checkIfEmailExists.id);
     const body = {
       id: checkIfEmailExists.id,
