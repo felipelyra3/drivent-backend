@@ -45,9 +45,10 @@ export async function singInGitHubPost(req: Request, res: Response) {
     } as Prisma.UserUncheckedCreateInput;
     const email = `${user.login}@github`;
 
-    const checkIfEmailExists = await findUserByEmail(email);
+    let checkIfEmailExists = await findUserByEmail(email);
     if (!checkIfEmailExists) {
       await createGitHubUser(loginInfo);
+      checkIfEmailExists = await findUserByEmail(email);
     }
 
     const tokenDrivent = await createSession(checkIfEmailExists.id);
