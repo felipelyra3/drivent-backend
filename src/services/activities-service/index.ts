@@ -19,15 +19,11 @@ async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
 
   const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
-
-  const filteredActivities = userActivitiesPerDay.filter((el) => el.ActivitySubscription.length != 0);
-
   if (!activity) {
     throw notFoundError();
   }
-
   const unavailableTime =
-    filteredActivities.filter(
+    userActivitiesPerDay.filter(
       (el) =>
         (activity.startsAt >= el.startsAt && activity.startsAt < el.endsAt) ||
         (activity.endsAt > el.startsAt && activity.endsAt < el.endsAt),
@@ -36,6 +32,7 @@ async function checkValidActivity(activityId: number, ticketId: number) {
   if (unavailableTime) {
     throw cannotSubscribeError();
   }
+  return activity;
 }
 
 async function listActivities() {
@@ -45,8 +42,8 @@ async function listActivities() {
 
 async function createSubscription(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
-  await checkValidActivity(activityId, ticketId);
-  return activitiesRepository.create({ activityId, ticketId });
+  const activity = await checkValidActivity(activityId, ticketId);
+  return activitiesRepository.create({ activityId, ticketId }, activity.vacancy);
 }
 
 async function findSubscriptionByTicketAndActivityIds(activityId: number, ticketId: number) {
@@ -70,11 +67,12 @@ async function getActivitiesByDay(date: Date) {
 async function deleteActivityById(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
   const isUserActivity = await activitiesRepository.findByTicketAndActivityId(activityId, ticketId);
+  const activity = await activitiesRepository.findByActivityId(activityId);
   if (!isUserActivity) {
     throw cannotSubscribeError();
   }
 
-  return activitiesRepository.deleteSubscription(isUserActivity.id);
+  return activitiesRepository.deleteSubscription(isUserActivity.id, activity.vacancy, activity.id);
 }
 
 const activitiesService = {

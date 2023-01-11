@@ -1,5 +1,5 @@
 import { prisma } from "@/config";
-import { ActivitySubscription } from "@prisma/client";
+import { Activities, ActivitySubscription } from "@prisma/client";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
@@ -15,13 +15,26 @@ async function findByActivityId(activityId: number) {
   });
 }
 
-async function create({ activityId, ticketId }: CreateParams): Promise<ActivitySubscription> {
-  return prisma.activitySubscription.create({
-    data: {
-      activityId,
-      ticketId,
-    },
-  });
+async function create(
+  { activityId, ticketId }: CreateParams,
+  vacancy: number,
+): Promise<[ActivitySubscription, Activities]> {
+  return prisma.$transaction([
+    prisma.activitySubscription.create({
+      data: {
+        activityId,
+        ticketId,
+      },
+    }),
+    prisma.activities.update({
+      where: {
+        id: activityId,
+      },
+      data: {
+        vacancy: vacancy - 1,
+      },
+    }),
+  ]);
 }
 
 async function findByTicketAndActivityId(activityId: number, ticketId: number) {
@@ -51,41 +64,45 @@ async function findActivitiesByDay(date: Date) {
         where: {
           date: {
             gte: today,
-            lt: plus1day
-          }
+            lt: plus1day,
+          },
         },
         orderBy: {
           startsAt: "asc",
         },
         include: {
-          ActivitySubscription: true
-        }
-      },
-    },
-  });
-}
-
-async function findByActivityDateAndTicket(date: Date, ticketId: number) {
-  return prisma.activities.findMany({
-    where: {
-      date,
-    },
-    include: {
-      ActivitySubscription: {
-        where: {
-          ticketId,
+          ActivitySubscription: true,
         },
       },
     },
   });
 }
 
-async function deleteSubscription(id: number) {
-  return prisma.activitySubscription.delete({
-    where: {
-      id,
-    },
-  });
+async function findByActivityDateAndTicket(
+  date: Date,
+  ticketId: number,
+): Promise<{ startsAt: string; endsAt: string }[]> {
+  const datetext = date.toISOString().slice(0, 10) + "%";
+  return prisma.$queryRaw`SELECT "Activities"."startsAt", "Activities"."endsAt" FROM "ActivitySubscription" JOIN "Activities" ON "ActivitySubscription"."activityId" = "Activities"."id"
+  WHERE "Activities".date::text LIKE ${datetext} AND "ActivitySubscription"."ticketId"=${ticketId};`;
+}
+
+async function deleteSubscription(SubscriptionId: number, vacancy: number, activityId: number) {
+  prisma.$transaction([
+    prisma.activitySubscription.delete({
+      where: {
+        id: SubscriptionId,
+      },
+    }),
+    prisma.activities.update({
+      where: {
+        id: activityId,
+      },
+      data: {
+        vacancy: vacancy + 1,
+      },
+    }),
+  ]);
 }
 
 const activitiesRepository = {
