@@ -55,7 +55,11 @@ async function findSubscriptionByTicketAndActivityIds(activityId: number, ticket
 
 async function getDays() {
   const days = await activitiesRepository.findDays();
-  return days;
+  const daysreturn = [];
+  for(let i=0; i<days.length; i++) {
+    daysreturn.push({ date: new Date(days[i].date) });
+  }
+  return daysreturn;
 }
 
 async function getActivitiesByDay(date: Date) {
@@ -73,7 +77,6 @@ async function deleteActivityById(userId: number, activityId: number) {
   if (!isUserActivity) {
     throw cannotSubscribeError();
   }
-
   return activitiesRepository.deleteSubscription(isUserActivity.id, activity.vacancy, activity.id);
 }
 
