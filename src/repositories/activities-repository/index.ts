@@ -1,18 +1,33 @@
-import { prisma } from "@/config";
+import { prisma, redis } from "@/config";
 import { Activities, ActivitySubscription } from "@prisma/client";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
 async function findActivities() {
-  return prisma.activities.findMany();
+  let activities = await redis.get("activities");
+
+  if(!activities) {
+    activities = JSON.stringify(await prisma.activities.findMany());
+    await redis.set("activities", activities);
+    return JSON.parse(activities);
+  }
+
+  return JSON.parse(activities);
 }
 
 async function findByActivityId(activityId: number) {
-  return prisma.activities.findFirst({
-    where: {
-      id: activityId,
-    },
-  });
+  let activity = await redis.get(`activity${activityId}`);
+  if(!activity) {
+    activity = JSON.stringify(
+      prisma.activities.findFirst({
+        where: {
+          id: activityId
+        }
+      })
+    );
+    await redis.set(`activity${activityId}`, activity);
+  }
+  return JSON.parse(activity);
 }
 
 async function create(

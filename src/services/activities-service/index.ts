@@ -17,7 +17,9 @@ async function checkEnrollmentTicket(userId: number) {
 
 async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
-
+  if(typeof activity.date === "string") {
+    activity.date = new Date(activity.date);
+  }
   const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
   if (!activity) {
     throw notFoundError();
