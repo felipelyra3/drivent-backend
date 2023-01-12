@@ -41,18 +41,16 @@ async function paymentProcess(ticketId: number, userId: number, cardData: CardPa
 
   const payment = await paymentRepository.createPayment(ticketId, paymentData);
 
-  await ticketRepository.ticketProcessPayment(ticketId);
-
   return payment;
 }
 
 export type CardPaymentParams = {
-  issuer: string,
-  number: number,
-  name: string,
-  expirationDate: Date,
-  cvv: number
-}
+  issuer: string;
+  number: number;
+  name: string;
+  expirationDate: Date;
+  cvv: number;
+};
 
 const paymentService = {
   getPaymentByTicketId,
