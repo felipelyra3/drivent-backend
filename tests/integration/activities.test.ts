@@ -1,4 +1,4 @@
-import app, { init } from "@/app";
+import app, { init, close } from "@/app";
 import { TicketStatus } from "@prisma/client";
 import faker from "@faker-js/faker";
 import httpStatus from "http-status";
@@ -23,6 +23,14 @@ import { prisma } from "@/config";
 beforeAll(async () => {
   await init();
   await cleanDb();
+});
+
+beforeEach(async () => {
+  await cleanDb();
+});
+
+afterAll(async () => {
+  await close();
 });
 
 const server = supertest(app);
@@ -230,7 +238,6 @@ describe("DELETE /activities/:activityId", () => {
       await createPayment(ticket.id, ticketType.price);
       const venue = await createVenue();
       const activity = await createActivity(venue.id);
-      await prisma.activitySubscription.deleteMany({});
       await createSubscription(activity.id, ticket.id);
 
       const beforeCount = await prisma.activitySubscription.count();
