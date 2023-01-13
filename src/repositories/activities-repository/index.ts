@@ -5,7 +5,7 @@ type CreateParams = Omit<ActivitySubscription, "id">;
 
 async function findActivities() {
   let activities = await redis.get("activities");
-  if(!activities || activities==="{}" || activities==="null") {
+  if (!activities || activities === "{}" || activities === "null") {
     activities = JSON.stringify(await prisma.activities.findMany());
     await redis.set("activities", activities);
     return JSON.parse(activities);
@@ -16,13 +16,13 @@ async function findActivities() {
 
 async function findByActivityId(activityId: number) {
   let activity = await redis.get(`activity${activityId}`);
-  if(!activity || activity==="{}" || activity==="null") {
+  if (!activity || activity === "{}" || activity === "null") {
     activity = JSON.stringify(
       await prisma.activities.findFirst({
         where: {
-          id: activityId
-        }
-      })
+          id: activityId,
+        },
+      }),
     );
     await redis.set(`activity${activityId}`, activity);
   }
@@ -54,14 +54,14 @@ async function create(
 
 async function findByTicketAndActivityId(activityId: number, ticketId: number) {
   let activity = await redis.get(`activity${activityId}and${ticketId}`);
-  if(!activity || activity==="{}" || activity==="null") {
+  if (!activity || activity === "{}" || activity === "null") {
     activity = JSON.stringify(
       await prisma.activitySubscription.findFirst({
         where: {
           activityId: activityId,
           ticketId: ticketId,
         },
-      })
+      }),
     );
     await redis.set(`activity${activityId}and${ticketId}`, activity);
   }
@@ -77,9 +77,9 @@ async function findDaysquery() {
   });
 }
 
-async function findDays(): Promise<{date: Date}[]> {
+async function findDays(): Promise<{ date: Date }[]> {
   let days = await redis.get("activitydays");
-  if(!days || days==="{}" || days==="null" || days==="[]") {
+  if (!days || days === "{}" || days === "null" || days === "[]") {
     days = JSON.stringify(await findDaysquery());
     await redis.set("activitydays", days);
   }
@@ -111,22 +111,28 @@ async function findActivitiesByDayquery(date: Date) {
 
 async function findActivitiesByDay(date: Date) {
   let activities = await redis.get(`activities${date}`);
-  if(!activities || activities==="{}" || activities==="null" || activities==="[]") {
+  if (!activities || activities === "{}" || activities === "null" || activities === "[]") {
     activities = JSON.stringify(await findActivitiesByDayquery(date));
     await redis.set(`activities${date}`, activities);
   }
   return JSON.parse(activities);
 }
 
-async function findByActivityDateAndTicketquery(date: Date, ticketId: number,): Promise<{ startsAt: string; endsAt: string }[]> {
+async function findByActivityDateAndTicketquery(
+  date: Date,
+  ticketId: number,
+): Promise<{ startsAt: string; endsAt: string }[]> {
   const datetext = date.toISOString().slice(0, 10) + "%";
   return prisma.$queryRaw`SELECT "Activities"."startsAt", "Activities"."endsAt" FROM "ActivitySubscription" JOIN "Activities" ON "ActivitySubscription"."activityId" = "Activities"."id"
   WHERE "Activities".date::text LIKE ${datetext} AND "ActivitySubscription"."ticketId"=${ticketId};`;
 }
 
-async function findByActivityDateAndTicket(date: Date, ticketId: number,): Promise<{ startsAt: string; endsAt: string }[]> {
+async function findByActivityDateAndTicket(
+  date: Date,
+  ticketId: number,
+): Promise<{ startsAt: string; endsAt: string }[]> {
   let activity = await redis.get(`activitydate${date}andticket${ticketId}`);
-  if(!activity || activity==="{}" || activity==="[]" || activity==="null") {
+  if (!activity || activity === "{}" || activity === "[]" || activity === "null") {
     activity = JSON.stringify(await findByActivityDateAndTicketquery(date, ticketId));
     await redis.set(`activitydate${date}andticket${ticketId}`, activity);
   }
