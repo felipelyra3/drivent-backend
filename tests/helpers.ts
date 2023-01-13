@@ -8,6 +8,7 @@ import { prisma } from "@/config";
 export async function cleanDb() {
   await prisma.address.deleteMany({});
   await prisma.payment.deleteMany({});
+  await prisma.activitySubscription.deleteMany({});
   await prisma.ticket.deleteMany({});
   await prisma.enrollment.deleteMany({});
   await prisma.event.deleteMany({});
@@ -17,6 +18,8 @@ export async function cleanDb() {
   await prisma.ticketType.deleteMany({});
   await prisma.room.deleteMany({});
   await prisma.hotel.deleteMany({});
+  await prisma.activities.deleteMany({});
+  await prisma.activitiesVenue.deleteMany({});
 }
 
 export async function generateValidToken(user?: User) {
