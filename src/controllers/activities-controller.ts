@@ -4,15 +4,6 @@ import httpStatus from "http-status";
 import activitiesService from "@/services/activities-service";
 import ticketService from "@/services/tickets-service";
 
-export async function getActivities(req: AuthenticatedRequest, res: Response) {
-  try {
-    const activities = await activitiesService.listActivities();
-    return res.status(httpStatus.OK).send(activities);
-  } catch (error) {
-    return res.sendStatus(httpStatus.BAD_REQUEST);
-  }
-}
-
 export async function activitySubscription(req: AuthenticatedRequest, res: Response) {
   try {
     const { userId } = req;

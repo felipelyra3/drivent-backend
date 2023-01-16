@@ -307,3 +307,131 @@ describe("GET /activities/:activityId", () => {
     });
   });
 });
+
+describe("GET /activities/", () => {
+  it("should respond with status 401 if no token is given", async () => {
+    const response = await server.get("/activities/");
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it("should respond with status 401 if given token is not valid", async () => {
+    const token = faker.lorem.word();
+
+    const response = await server.get("/activities/").set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it("should respond with status 401 if there is no session for given token", async () => {
+    const userWithoutSession = await createUser();
+    const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
+
+    const response = await server.get("/activities/").set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  describe("when token is valid", () => {
+    it("should respond with status 200 and an empty array when there is no activities", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+
+      const response = await server.get("/activities/").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual([
+      ]);
+    });
+    
+    it("should respond with status 200 and a list of days of activities", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const venue = await createVenue();
+      const activity = await createActivity(venue.id);
+      const date = activity.date.toISOString();
+
+      const response = await server.get("/activities/").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual([
+        date,
+      ]);
+    });
+  });
+});
+
+describe("GET /activities/days/:date", () => {
+  it("should respond with status 401 if no token is given", async () => {
+    const response = await server.get("/activities/days/2022-02-02");
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it("should respond with status 401 if given token is not valid", async () => {
+    const token = faker.lorem.word();
+
+    const response = await server.get("/activities/days/2022-02-02").set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it("should respond with status 401 if there is no session for given token", async () => {
+    const userWithoutSession = await createUser();
+    const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
+
+    const response = await server.get("/activities/days/2022-02-02").set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  describe("when token is valid", () => {
+    it("should respond with status 200 and an empty array when there is no activities", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const venue = await createVenue();
+
+      const response = await server.get("/activities/days/2022-02-02").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual([
+        {
+          id: venue.id,
+          name: venue.name,
+          Activities: []
+        }
+      ]);
+    });
+    
+    it("should respond with status 200 and a list of activities per day", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const venue = await createVenue();
+      const activity = await createActivity(venue.id);
+      const date = activity.date.toISOString().slice(0, 10);
+      const newdate = activity.date.toISOString();
+
+      const response = await server.get(`/activities/days/${date}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual([
+        {
+          id: venue.id,
+          name: venue.name,
+          Activities: [
+            {
+              id: activity.id,
+              name: activity.name,
+              date: newdate,
+              startsAt: activity.startsAt,
+              endsAt: activity.endsAt,
+              vacancy: activity.vacancy,
+              venue: activity.venue,
+              ActivitySubscription: [],
+            }
+          ]
+        }
+      ]);
+    });
+  });
+});

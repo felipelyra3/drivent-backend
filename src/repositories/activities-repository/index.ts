@@ -3,17 +3,6 @@ import { Activities, ActivitySubscription } from "@prisma/client";
 
 type CreateParams = Omit<ActivitySubscription, "id">;
 
-async function findActivities() {
-  let activities = await redis.get("activities");
-  if (!activities || activities === "{}" || activities === "null") {
-    activities = JSON.stringify(await prisma.activities.findMany());
-    await redis.set("activities", activities);
-    return JSON.parse(activities);
-  }
-
-  return JSON.parse(activities);
-}
-
 async function findByActivityId(activityId: number) {
   let activity = await redis.get(`activity${activityId}`);
   if (!activity || activity === "{}" || activity === "null") {
@@ -159,7 +148,6 @@ async function deleteSubscription(SubscriptionId: number, vacancy: number, activ
 }
 
 const activitiesRepository = {
-  findActivities,
   create,
   findByActivityId,
   findByTicketAndActivityId,

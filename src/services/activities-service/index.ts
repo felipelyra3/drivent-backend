@@ -37,11 +37,6 @@ async function checkValidActivity(activityId: number, ticketId: number) {
   return activity;
 }
 
-async function listActivities() {
-  const activities = await activitiesRepository.findActivities();
-  return activities;
-}
-
 async function createSubscription(userId: number, activityId: number) {
   const ticketId = await checkEnrollmentTicket(userId);
   const activity = await checkValidActivity(activityId, ticketId);
@@ -81,7 +76,6 @@ async function deleteActivityById(userId: number, activityId: number) {
 }
 
 const activitiesService = {
-  listActivities,
   createSubscription,
   findSubscriptionByTicketAndActivityIds,
   getDays,

@@ -10,6 +10,7 @@ import {
 const activitiesRouter = Router();
 
 activitiesRouter
+  
   .all("/*", authenticateToken)
   .get("/", getDays)
   .get("/:activityId", userHasSubscripted)
