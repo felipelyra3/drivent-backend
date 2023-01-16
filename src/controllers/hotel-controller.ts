@@ -48,12 +48,6 @@ export async function getVancacies(req: AuthenticatedRequest, res: Response) {
 
     return res.status(httpStatus.OK).send(vacancies);
   } catch (error) {
-    if (error.name === "NotFoundError") {
-      return res.sendStatus(httpStatus.NOT_FOUND);
-    }
-    if (error.name === "cannotListHotelsError") {
-      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
-    }
-    return res.sendStatus(httpStatus.BAD_REQUEST);
+    return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }

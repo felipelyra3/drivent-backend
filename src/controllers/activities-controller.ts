@@ -37,9 +37,6 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
     const { userId } = req;
     const { activityId } = req.params;
 
-    if (!activityId) {
-      return res.sendStatus(httpStatus.BAD_REQUEST);
-    }
     const ticket = await ticketService.getTicketByUserId(userId);
     const activitie = await activitiesService.findSubscriptionByTicketAndActivityIds(Number(activityId), ticket.id);
     if (!activitie) {
@@ -48,9 +45,6 @@ export async function userHasSubscripted(req: AuthenticatedRequest, res: Respons
       return res.status(httpStatus.OK).send(activitie);
     }
   } catch (error) {
-    if (error.name === "CannotSubscribeError") {
-      return res.sendStatus(httpStatus.FORBIDDEN);
-    }
     return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
