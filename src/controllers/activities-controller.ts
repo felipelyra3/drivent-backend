@@ -22,9 +22,7 @@ export async function activitySubscription(req: AuthenticatedRequest, res: Respo
     if (!activityId) {
       return res.sendStatus(httpStatus.BAD_REQUEST);
     }
-
     const [subscription, activity] = await activitiesService.createSubscription(userId, Number(activityId));
-
     return res.status(httpStatus.OK).send({ subscriptionId: subscription.id });
   } catch (error) {
     if (error.name === "CannotSubscribeError") {

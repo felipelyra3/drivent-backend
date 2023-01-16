@@ -17,7 +17,9 @@ async function checkEnrollmentTicket(userId: number) {
 
 async function checkValidActivity(activityId: number, ticketId: number) {
   const activity = await activitiesRepository.findByActivityId(activityId);
-
+  if(typeof activity.date === "string") {
+    activity.date = new Date(activity.date);
+  }
   const userActivitiesPerDay = await activitiesRepository.findByActivityDateAndTicket(activity.date, ticketId);
   if (!activity) {
     throw notFoundError();
@@ -53,7 +55,11 @@ async function findSubscriptionByTicketAndActivityIds(activityId: number, ticket
 
 async function getDays() {
   const days = await activitiesRepository.findDays();
-  return days;
+  const daysreturn = [];
+  for(let i=0; i<days.length; i++) {
+    daysreturn.push({ date: new Date(days[i].date) });
+  }
+  return daysreturn;
 }
 
 async function getActivitiesByDay(date: Date) {
@@ -71,7 +77,6 @@ async function deleteActivityById(userId: number, activityId: number) {
   if (!isUserActivity) {
     throw cannotSubscribeError();
   }
-
   return activitiesRepository.deleteSubscription(isUserActivity.id, activity.vacancy, activity.id);
 }
 
